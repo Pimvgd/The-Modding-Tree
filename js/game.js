@@ -24,16 +24,35 @@ let VERSION = {
 
 // Determines if it should show points/sec
 function canGenPoints(){
-	return hasUpgrade("c", 11)
+	return hasUpgrade("p", 11) || hasUpgrade("p", 12) || hasUpgrade("p", 13) || hasUpgrade("p", 14);
+}
+
+function isStuck() {
+	return !canGenPoints() && getResetGain("p").eq(0) && player.p.points.eq(0);
 }
 
 // Calculate points/sec!
 function getPointGen() {
-	if(!canGenPoints())
+	if(!canGenPoints()) {
+		if (isStuck()) {
+			return new Decimal(0.1);
+		}
 		return new Decimal(0)
+	}
+		
 
-	let gain = new Decimal(1)
-	if (hasUpgrade("c", 12)) gain = gain.times(upgradeEffect("c", 12))
+	let gain = new Decimal(0)
+	if (hasUpgrade("p", 11)) gain = gain.add(new Decimal(2));
+	if (hasUpgrade("p", 12)) gain = gain.add(new Decimal(3));
+	if (hasUpgrade("p", 13)) gain = gain.add(new Decimal(4));
+	if (hasUpgrade("p", 14)) gain = gain.add(new Decimal(5));
+	gain = gain.mul(layers.k.effect().firstRowBaseIncrease);
+
+	if (hasUpgrade("p", 21)) gain = gain.times(upgradeEffect("p", 21));
+	if (hasUpgrade("p", 22)) gain = gain.times(upgradeEffect("p", 22));
+	if (hasUpgrade("p", 23)) gain = gain.times(upgradeEffect("p", 23));
+	if (hasUpgrade("p", 24)) gain = gain.times(upgradeEffect("p", 24));
+
 	return gain
 }
 
@@ -214,7 +233,7 @@ function doReset(layer, force=false) {
 	}
 
 	prevOnReset = {...player} //Deep Copy
-	player.points = (row == 0 ? new Decimal(0) : new Decimal(10))
+	player.points = (row == 0 ? new Decimal(0) : new Decimal(10).mul(hasUpgrade("k", 11) ? upgradeEffect("k", 11) : 1))
 
 	for (let x = row; x >= 0; x--) rowReset(x, layer)
 	rowReset("side", layer)
