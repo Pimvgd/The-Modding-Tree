@@ -233,7 +233,13 @@ function doReset(layer, force=false) {
 	}
 
 	prevOnReset = {...player} //Deep Copy
-	player.points = (row == 0 ? new Decimal(0) : new Decimal(10).mul(hasUpgrade("k", 11) ? upgradeEffect("k", 11) : 1))
+
+	if (layer === "c") {
+		player.points = new Decimal(10).mul(hasUpgrade("k", 11) ? upgradeEffect("k", 11) : 1);
+	}
+	else {
+		player.points = (row == 0 ? new Decimal(0) : new Decimal(10))
+	}
 
 	for (let x = row; x >= 0; x--) rowReset(x, layer)
 	rowReset("side", layer)

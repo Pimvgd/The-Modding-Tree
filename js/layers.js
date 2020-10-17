@@ -127,7 +127,7 @@ addLayer(PRESTIGE_LAYER_ID, {
             21: {
                 title: "2,1: Boost Point Gain",
                 description: "Point generation is boosted by your unspent Prestige Points.",
-                cost: new Decimal(4),
+                cost: new Decimal(5),
                 unlocked() { 
                     return (hasUpgrade("c", 11) || hasUpgrade(this.layer, 11))
                         && hasMilestone("c", 0);
@@ -681,7 +681,13 @@ addLayer("k", {
             description: "Vastly increases the points you start with after a Content Unlock reset",
             cost: new Decimal(1),
             effect() {
-                return new Decimal(8).pow(player[this.layer].points);
+                let softCap = player.c.points.sqrt().floor();
+                let bonusUptoSoftcap = new Decimal(8).pow(player[this.layer].points.min(softCap));
+                let result = bonusUptoSoftcap;
+                if (player[this.layer].points.gt(softCap)) {
+                    result = result.mul(player[this.layer].points.sub(softCap).add(1));
+                }
+                return result;
             },
             effectDisplay() {
                 return format(this.effect()) + "x";
