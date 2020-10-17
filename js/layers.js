@@ -122,7 +122,7 @@ addLayer(PRESTIGE_LAYER_ID, {
                 title: "1,4: Point Gain",
                 description: "Gain 5 points every second.",
                 cost: new Decimal(27),
-                unlocked() { return hasMilestone("c", 1) && (hasUpgrade(this.layer, 13) || hasUpgrade("c", 11))  }, // The upgrade is only visible when this is true
+                unlocked() { return hasMilestone("c", 6) && (hasUpgrade(this.layer, 13) || hasUpgrade("c", 11))  }, // The upgrade is only visible when this is true
             },
             21: {
                 title: "2,1: Boost Point Gain",
@@ -178,7 +178,7 @@ addLayer(PRESTIGE_LAYER_ID, {
                 cost: new Decimal(320),
                 unlocked() { 
                     return (hasUpgrade("c", 11) || (hasUpgrade(this.layer, 23) && hasUpgrade(this.layer, 14)))
-                        && hasMilestone("c", 6);
+                        && hasMilestone("c", 7);
                 },
                 effect() {
                     let ret = player[this.layer].total.add(1).root(5);
@@ -194,7 +194,7 @@ addLayer(PRESTIGE_LAYER_ID, {
                 cost: new Decimal(7),
                 unlocked() { 
                     return (hasUpgrade("c", 11) || hasUpgrade(this.layer, 21))
-                        && hasMilestone("c", 7);
+                        && hasMilestone("c", 1);
                 },
                 effect() {
                     let ret = player[this.layer].points.add(1).root(10);
@@ -470,7 +470,7 @@ addLayer("c", {
             buyables: {}, // You don't actually have to initialize this one
         }},
         color: "gold",
-        requires: new Decimal(12), // Can be a function that takes requirement increases into account
+        requires: new Decimal(11), // Can be a function that takes requirement increases into account
         resource: "Content Unlocks", // Name of prestige currency
         baseResource: "prestige points", // Name of resource prestige is based on
         baseAmount() {return player.p.points}, // Get the current amount of baseResource
@@ -507,7 +507,7 @@ addLayer("c", {
                 unlocked() {return hasMilestone(this.layer, 0)},
                 done() {return player[this.layer].best.gte(2)},
                 effectDescription() {
-                    return hasMilestone(this.layer, 1) ? "Unlock Prestige Upgrades 1,4 and 2,2" : "Unlock some more prestige upgrades";
+                    return hasMilestone(this.layer, 1) ? "Unlock Prestige Upgrades 2,2 and 3,1" : "Unlock some more prestige upgrades";
                 },
             },
             2: {
@@ -531,7 +531,7 @@ addLayer("c", {
                 unlocked() {return hasMilestone(this.layer, adjustForFutureSight(3))},
                 done() {return player[this.layer].best.gte(5)},
                 effectDescription() {
-                    return hasMilestone(this.layer, 4) ? "Content Unlocks no longer reset the Kickstarter Layer. Unlocks the first Kickstarter Upgrade." :
+                    return hasMilestone(this.layer, 4) ? "Content Unlocks no longer reset the Kickstarter Layer.<br/> Unlocks the first Kickstarter Upgrade." :
                     hasMilestone(this.layer, 3) ? "Add an upgrade to the Kickstarter layer" : "Add an upgrade to the layer that helps you with the early game";
                 },
             },
@@ -548,7 +548,7 @@ addLayer("c", {
                 unlocked() {return hasMilestone(this.layer, adjustForFutureSight(5))},
                 done() {return player[this.layer].best.gte(7)},
                 effectDescription() {
-                    return hasMilestone(this.layer, 6) ? "Unlock Prestige Upgrade 2,4." : "Unlock more prestige upgrades!";
+                    return hasMilestone(this.layer, 6) ? "Unlock Prestige Upgrade 1,4." : "Unlock more prestige upgrades!";
                 },
             },
             7: {
@@ -556,7 +556,7 @@ addLayer("c", {
                 unlocked() {return hasMilestone(this.layer, adjustForFutureSight(6))},
                 done() {return player[this.layer].best.gte(8)},
                 effectDescription() {
-                    return hasMilestone(this.layer, 7) ? "Unlock Prestige Upgrade 3,1." : "Unlock more prestige upgrades!";
+                    return hasMilestone(this.layer, 7) ? "Unlock Prestige Upgrade 2,4." : "Unlock more prestige upgrades!";
                 },
             },
             8: {
@@ -682,6 +682,9 @@ addLayer("k", {
             cost: new Decimal(1),
             effect() {
                 return new Decimal(8).pow(player[this.layer].points);
+            },
+            effectDisplay() {
+                return format(this.effect()) + "x";
             },
             unlocked() { return hasMilestone("c", 4) }, // The upgrade is only visible when this is true
         },

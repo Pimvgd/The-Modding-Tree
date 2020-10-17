@@ -157,13 +157,13 @@
 					<br><br>
 					<span v-if="player[layer].best != undefined">Your best {{tmp[layer].resource}} is {{formatWhole(player[layer].best)}}<br></span>
 					<span v-if="player[layer].total != undefined">You have made a total of {{formatWhole(player[layer].total)}} {{tmp[layer].resource}}<br></span>
+					<upgrades v-bind:style="tmp[layer].componentStyles['upgrades']" :layer="layer"></upgrades>
 					<milestones v-bind:style="tmp[layer].componentStyles.milestones" :layer="layer"></milestones>
 					<div v-if="Array.isArray(layers[layer].midsection)">
 						<column :layer="layer" :data="tmp[layer].midsection"></column>
 					</div>
 					<clickables v-bind:style="tmp[layer].componentStyles['clickables']" :layer="layer"></clickables>
 					<buyables v-bind:style="tmp[layer].componentStyles.buyables" :layer="layer"></buyables>
-					<upgrades v-bind:style="tmp[layer].componentStyles['upgrades']" :layer="layer"></upgrades>
 					<challenges v-bind:style="tmp[layer].componentStyles['challenges']" :layer="layer"></challenges>
 					<br><br>
 				</div>
