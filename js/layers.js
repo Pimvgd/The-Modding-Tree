@@ -598,15 +598,15 @@ addLayer("c", {
             },
             12: {
                 requirementDescription: "13 Content Unlocks",
-                unlocked() {return hasMilestone(this.layer, adjustForFutureSight(10))},
-                done() {return player[this.layer].best.gte(12)},
+                unlocked() {return hasMilestone(this.layer, adjustForFutureSight(11))},
+                done() {return player[this.layer].best.gte(13)},
                 effectDescription() {
                     return hasMilestone(this.layer, 12) ? "You gain 1% of your prestige point gain on reset per second." : "A taste of automation?";
                 },
             },
             13: {
                 requirementDescription: "14-and-then-some Content Unlocks",
-                unlocked() {return hasMilestone(this.layer, adjustForFutureSight(11))},
+                unlocked() {return hasMilestone(this.layer, adjustForFutureSight(12))},
                 done() {return false},
                 effectDescription() {
                     return hasMilestone(this.layer, 13) ? "hacker" : "No more content =/";
