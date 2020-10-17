@@ -42,16 +42,17 @@ function getPointGen() {
 		
 
 	let gain = new Decimal(0)
-	if (hasUpgrade("p", 11)) gain = gain.add(new Decimal(2));
-	if (hasUpgrade("p", 12)) gain = gain.add(new Decimal(3));
-	if (hasUpgrade("p", 13)) gain = gain.add(new Decimal(4));
-	if (hasUpgrade("p", 14)) gain = gain.add(new Decimal(5));
-	gain = gain.mul(layers.k.effect().firstRowBaseIncrease);
+	if (hasUpgrade("p", 12)) gain = gain.add(new Decimal(4));
+	if (hasUpgrade("p", 13)) gain = gain.add(new Decimal(8));
+	if (hasUpgrade("p", 14)) gain = gain.add(new Decimal(16));
+	gain = gain.mul(layers.k.effect().pointGainBaseIncrease);
 
-	if (hasUpgrade("p", 21)) gain = gain.times(upgradeEffect("p", 21));
-	if (hasUpgrade("p", 22)) gain = gain.times(upgradeEffect("p", 22));
-	if (hasUpgrade("p", 23)) gain = gain.times(upgradeEffect("p", 23));
-	if (hasUpgrade("p", 24)) gain = gain.times(upgradeEffect("p", 24));
+	if (hasUpgrade("p", 11)) gain = gain.add(upgradeEffect("p", 11));
+
+	if (hasUpgrade("p", 31)) gain = gain.times(upgradeEffect("p", 31));
+	if (hasUpgrade("p", 32)) gain = gain.times(upgradeEffect("p", 32));
+	if (hasUpgrade("p", 33)) gain = gain.times(upgradeEffect("p", 33));
+	if (hasUpgrade("p", 34)) gain = gain.times(upgradeEffect("p", 34));
 
 	return gain
 }

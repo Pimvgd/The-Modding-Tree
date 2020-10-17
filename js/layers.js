@@ -9,6 +9,7 @@ addLayer(PRESTIGE_LAYER_ID, {
 			points: new Decimal(0),
             best: new Decimal(0),
             total: new Decimal(0),
+            upgrade11Power: new Decimal(0),
             buyables: {}, // You don't actually have to initialize this one
         }},
         color: "cornflowerblue",
@@ -23,8 +24,10 @@ addLayer(PRESTIGE_LAYER_ID, {
         canBuyMax() {}, // Only needed for static layers with buy max
         gainMult() { // Calculate the multiplier for main currency from bonuses
             let mult = new Decimal(1);
-            if (hasUpgrade(this.layer, 31)) mult = mult.times(upgradeEffect(this.layer, 31)) // These upgrades don't exist
-			//if (hasUpgrade(this.layer, 120)) mult = mult.times(upgradeEffect(this.layer, 120))
+            if (hasUpgrade(this.layer, 21)) mult = mult.times(upgradeEffect(this.layer, 21))
+            if (hasUpgrade(this.layer, 22)) mult = mult.times(upgradeEffect(this.layer, 22))
+            if (hasUpgrade(this.layer, 23)) mult = mult.times(upgradeEffect(this.layer, 23))
+            if (hasUpgrade(this.layer, 24)) mult = mult.times(upgradeEffect(this.layer, 24))
             return mult
         },
         gainExp() { // Calculate the exponent on main currency from bonuses
@@ -35,7 +38,14 @@ addLayer(PRESTIGE_LAYER_ID, {
                 return;
             }
             
-            let shouldKeepUpgrades = {11: hasMilestone("c", 8), 12: hasMilestone("c", 9), 21: hasMilestone("c", 10), 31: hasMilestone("c", 11)};
+            let shouldKeepUpgrades = {
+                11: hasMilestone("c", 8), 
+                12: hasMilestone("c", 9), 
+                21: hasMilestone("c", 10), 
+                31: hasMilestone("c", 11),
+                22: hasMilestone("c", 15),
+                13: hasMilestone("c", 16)
+            };
             let upgradesToKeep = [];
             for (let upgrade of player[this.layer].upgrades) {
                 if (shouldKeepUpgrades[upgrade]) {
@@ -98,6 +108,9 @@ addLayer(PRESTIGE_LAYER_ID, {
         //     },
         // }, 
         update(diff) {
+            if (hasUpgrade(this.layer, 11)) {
+                player[this.layer].upgrade11Power = player[this.layer].upgrade11Power.add(diff);
+            }
             if (hasMilestone("c", 12)) {
                 addPoints("p", getResetGain("p").mul(0.01).mul(diff));
             }
@@ -106,39 +119,46 @@ addLayer(PRESTIGE_LAYER_ID, {
             rows: 3,
             cols: 4,
             11: {
-                title: "1,1: Point Gain",
-                description: "Gain 2 points every second.",
+                title: "1,1: Point Gain Gain",
+                description: "Gain 1 point every second, every second.",
                 cost: new Decimal(1),
+                effect() {
+                    let ret = player[this.layer].upgrade11Power;
+                    return ret;
+                },
+                effectDisplay() {
+                    return format(this.effect())+"/s";
+                },
                 unlocked() { return player[this.layer].unlocked }, // The upgrade is only visible when this is true
             },
             12: {
                 title: "1,2: Point Gain",
-                description: "Gain 3 points every second.",
+                description: "Gain 4 points every second.",
                 cost: new Decimal(3),
                 unlocked() { return hasUpgrade(this.layer, 11) || hasUpgrade("c", 11) }, // The upgrade is only visible when this is true
             },
             13: {
                 title: "1,3: Point Gain",
-                description: "Gain 4 points every second.",
+                description: "Gain 8 points every second.",
                 cost: new Decimal(9),
                 unlocked() { return hasUpgrade(this.layer, 12) || hasUpgrade("c", 11) }, // The upgrade is only visible when this is true
             },
             14: {
                 title: "1,4: Point Gain",
-                description: "Gain 5 points every second.",
+                description: "Gain 16 points every second.",
                 cost: new Decimal(27),
                 unlocked() { return hasMilestone("c", 6) && (hasUpgrade(this.layer, 13) || hasUpgrade("c", 11))  }, // The upgrade is only visible when this is true
             },
             21: {
-                title: "2,1: Boost Point Gain",
-                description: "Point generation is boosted by your unspent Prestige Points.",
+                title: "2,1: Boost Prestige Point Gain",
+                description: "Prestige points on reset are boosted by point generation.",
                 cost: new Decimal(5),
                 unlocked() { 
                     return (hasUpgrade("c", 11) || hasUpgrade(this.layer, 11))
                         && hasMilestone("c", 0);
                 },
                 effect() {
-                    let ret = player[this.layer].points.add(1).root(5).add(1);
+                    let ret = getPointGen().add(1).root(10);
                     return ret;
                 },
                 effectDisplay() {
@@ -146,15 +166,15 @@ addLayer(PRESTIGE_LAYER_ID, {
                 }
             },
             22: {
-                title: "2,2: Boost Point Gain",
-                description: "Point generation is boosted by your best Prestige Points.",
+                title: "2,2: Boost Prestige Point Gain",
+                description: "Prestige points on reset are boosted by total prestige points.",
                 cost: new Decimal(20),
                 unlocked() { 
                     return (hasUpgrade("c", 11) || (hasUpgrade(this.layer, 21) && hasUpgrade(this.layer, 12)))
                         && hasMilestone("c", 1);
                 },
                 effect() {
-                    let ret = player[this.layer].best.add(1).root(5);
+                    let ret = player[this.layer].total.add(1).root(10);
                     return ret;
                 },
                 effectDisplay() {
@@ -162,15 +182,15 @@ addLayer(PRESTIGE_LAYER_ID, {
                 }
             },
             23: {
-                title: "2,3: Boost Point Gain",
-                description: "Point generation is boosted by prestige points on reset.",
-                cost: new Decimal(80),
+                title: "2,3: Boost Prestige Point Gain",
+                description: "Prestige points on reset are boosted by best prestige points.",
+                cost: new Decimal(100),
                 unlocked() { 
                     return (hasUpgrade("c", 11) || (hasUpgrade(this.layer, 22) && hasUpgrade(this.layer, 13)))
-                        && hasMilestone("c", 5);
+                        && hasMilestone("c", 1);
                 },
                 effect() {
-                    let ret = getResetGain("p").add(1).root(5);
+                    let ret = player[this.layer].best.add(1).root(10);
                     return ret;
                 },
                 effectDisplay() {
@@ -178,15 +198,15 @@ addLayer(PRESTIGE_LAYER_ID, {
                 }
             },
             24: {
-                title: "2,4: Boost Point Gain",
-                description: "Point generation is boosted by total prestige points.",
-                cost: new Decimal(320),
+                title: "2,4: Boost Prestige Point Gain",
+                description: "Prestige points on reset are boosted by unspent prestige points.",
+                cost: new Decimal(500),
                 unlocked() { 
                     return (hasUpgrade("c", 11) || (hasUpgrade(this.layer, 23) && hasUpgrade(this.layer, 14)))
-                        && hasMilestone("c", 7);
+                        && hasMilestone("c", 1);
                 },
                 effect() {
-                    let ret = player[this.layer].total.add(1).root(5);
+                    let ret = player[this.layer].points.add(1).root(10);
                     return ret;
                 },
                 effectDisplay() {
@@ -194,9 +214,9 @@ addLayer(PRESTIGE_LAYER_ID, {
                 }
             },
             31: {
-                title: "3,1: Boost Prestige Point Gain",
-                description: "Prestige points on reset are boosted by unspent prestige points.",
-                cost: new Decimal(7),
+                title: "3,1: Boost Point Gain",
+                description: "Point generation is boosted by your unspent Prestige Points.",
+                cost: new Decimal(8),
                 unlocked() { 
                     return (hasUpgrade("c", 11) || hasUpgrade(this.layer, 21))
                         && hasMilestone("c", 1);
@@ -208,7 +228,55 @@ addLayer(PRESTIGE_LAYER_ID, {
                 effectDisplay() {
                     return format(this.effect())+"x";
                 }
-            }
+            },
+            32: {
+                title: "3,2: Boost Point Gain",
+                description: "Point generation is boosted by your best Prestige Points.",
+                cost: new Decimal(64),
+                unlocked() { 
+                    return (hasUpgrade("c", 11) || (hasUpgrade(this.layer, 31) && hasUpgrade(this.layer, 22)))
+                        && hasMilestone("c", 13);
+                },
+                effect() {
+                    let ret = player[this.layer].best.add(1).root(10);
+                    return ret;
+                },
+                effectDisplay() {
+                    return format(this.effect())+"x";
+                }
+            },
+            33: {
+                title: "3,3: Boost Point Gain",
+                description: "Point generation is boosted by prestige points on reset.",
+                cost: new Decimal(256),
+                unlocked() { 
+                    return (hasUpgrade("c", 11) || (hasUpgrade(this.layer, 32) && hasUpgrade(this.layer, 23)))
+                        && hasMilestone("c", 14);
+                },
+                effect() {
+                    let ret = getResetGain("p").add(1).root(10);
+                    return ret;
+                },
+                effectDisplay() {
+                    return format(this.effect())+"x";
+                }
+            },
+            34: {
+                title: "3,4: Boost Point Gain",
+                description: "Point generation is boosted by total prestige points.",
+                cost: new Decimal(2048),
+                unlocked() { 
+                    return (hasUpgrade("c", 11) || (hasUpgrade(this.layer, 33) && hasUpgrade(this.layer, 24)))
+                        && hasMilestone("c", 17);
+                },
+                effect() {
+                    let ret = player[this.layer].total.add(1).root(10);
+                    return ret;
+                },
+                effectDisplay() {
+                    return format(this.effect())+"x";
+                }
+            },
             // 12: {
             //     title: "1,2: Point Gain",
             //     description: "Candy generation is faster based on your unspent Lollipops.",
@@ -475,13 +543,13 @@ addLayer("c", {
             buyables: {}, // You don't actually have to initialize this one
         }},
         color: "gold",
-        requires: new Decimal(11), // Can be a function that takes requirement increases into account
+        requires: new Decimal(12), // Can be a function that takes requirement increases into account
         resource: "Content Unlocks", // Name of prestige currency
         baseResource: "prestige points", // Name of resource prestige is based on
         baseAmount() {return player.p.points}, // Get the current amount of baseResource
         type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
         exponent: 0.5, // Prestige currency exponent
-        base: 6, // Only needed for static layers, base of the formula (b^(x^exp))
+        base: 7, // Only needed for static layers, base of the formula (b^(x^exp))
         roundUpCost: true, // True if the cost needs to be rounded up (use when baseResource is static?)
         canBuyMax() {}, // Only needed for static layers with buy max
         gainMult() { // Calculate the multiplier for main currency from bonuses
@@ -605,11 +673,51 @@ addLayer("c", {
                 },
             },
             13: {
-                requirementDescription: "14-and-then-some Content Unlocks",
+                requirementDescription: "14 Content Unlocks",
                 unlocked() {return hasMilestone(this.layer, adjustForFutureSight(12))},
+                done() {return player[this.layer].best.gte(14)},
+                effectDescription() {
+                    return hasMilestone(this.layer, 13) ? "Unlock Prestige Upgrade 3,2." : "Unlock more prestige upgrades!";
+                },
+            },
+            14: {
+                requirementDescription: "15 Content Unlocks",
+                unlocked() {return hasMilestone(this.layer, adjustForFutureSight(13))},
+                done() {return player[this.layer].best.gte(15)},
+                effectDescription() {
+                    return hasMilestone(this.layer, 14) ? "Unlock Prestige Upgrade 3,3." : "Unlock more prestige upgrades!";
+                },
+            },
+            15: {
+                requirementDescription: "16 Content Unlocks",
+                unlocked() {return hasMilestone(this.layer, adjustForFutureSight(14))},
+                done() {return player[this.layer].best.gte(16)},
+                effectDescription() {
+                    return hasMilestone(this.layer, 15) ? "You keep Prestige Upgrade 2,2 on all resets." : "Keep another prestige upgrade on resets!";
+                },
+            },
+            16: {
+                requirementDescription: "17 Content Unlocks",
+                unlocked() {return hasMilestone(this.layer, adjustForFutureSight(15))},
+                done() {return player[this.layer].best.gte(17)},
+                effectDescription() {
+                    return hasMilestone(this.layer, 16) ? "You keep Prestige Upgrade 1,3 on all resets." : "Keep another prestige upgrade on resets!";
+                },
+            },
+            17: {
+                requirementDescription: "18 Content Unlocks",
+                unlocked() {return hasMilestone(this.layer, adjustForFutureSight(16))},
+                done() {return player[this.layer].best.gte(18)},
+                effectDescription() {
+                    return hasMilestone(this.layer, 17) ? "Unlock Prestige Upgrade 3,4." : "Unlock more prestige upgrades!";
+                },
+            },
+            18: {
+                requirementDescription: "Dunno Content Unlocks",
+                unlocked() {return hasMilestone(this.layer, adjustForFutureSight(17))},
                 done() {return false},
                 effectDescription() {
-                    return hasMilestone(this.layer, 13) ? "hacker" : "No more content =/";
+                    return hasMilestone(this.layer, 18) ? "hacker" : "No more content =/";
                 },
             },
         },
@@ -644,13 +752,13 @@ addLayer("k", {
         buyables: {}, // You don't actually have to initialize this one
     }},
     color: "springgreen",
-    requires: new Decimal(200), // Can be a function that takes requirement increases into account
+    requires: new Decimal(50), // Can be a function that takes requirement increases into account
     resource: "kickstarters", // Name of prestige currency
     baseResource: "prestige points", // Name of resource prestige is based on
     baseAmount() {return player.p.points}, // Get the current amount of baseResource
     type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     exponent: 0.5, // Prestige currency exponent
-    base: 5, // Only needed for static layers, base of the formula (b^(x^exp))
+    base: 25, // Only needed for static layers, base of the formula (b^(x^exp))
     roundUpCost: true, // True if the cost needs to be rounded up (use when baseResource is static?)
     canBuyMax() {}, // Only needed for static layers with buy max
     gainMult() { // Calculate the multiplier for main currency from bonuses
@@ -673,18 +781,18 @@ addLayer("k", {
     row: 1, // Row the layer is in on the tree (0 is the first row)
     effect() {
         let softCap = player.c.points.sqrt().floor();
-        let bonusUptoSoftcap = new Decimal(3).pow(player[this.layer].points.min(softCap));
+        let bonusUptoSoftcap = new Decimal(2).pow(player[this.layer].points.min(softCap));
         let result = bonusUptoSoftcap;
         if (player[this.layer].points.gt(softCap)) {
             result = result.mul(player[this.layer].points.sub(softCap).add(1));
         }
         return { // Formulas for any boosts inherent to resources in the layer. Can return a single value instead of an object if there is just one effect
-            firstRowBaseIncrease: result
+            pointGainBaseIncrease: result
         }
     },
     effectDescription() {
         let eff = this.effect();
-        return "which multiply the effect of the first row of prestige upgrades by " + formatWhole(eff.firstRowBaseIncrease) + ". (Kickstarters past " + formatWhole(player.c.points.sqrt().floor()) + " have reduced effects.)";
+        return "which multiply the effect of Point Gain prestige upgrades by " + format(eff.pointGainBaseIncrease) + ". (Kickstarters past " + formatWhole(player.c.points.sqrt().floor()) + " have reduced effects.)";
     },
     upgrades: {
         rows: 1,
