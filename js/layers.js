@@ -97,6 +97,11 @@ addLayer(PRESTIGE_LAYER_ID, {
         //         onComplete() {console.log("hiii")} // Called when you complete the challenge
         //     },
         // }, 
+        update(diff) {
+            if (hasMilestone("c", 12)) {
+                addPoints("p", getResetGain("p").mul(0.01).mul(diff));
+            }
+        },
         upgrades: {
             rows: 3,
             cols: 4,
@@ -592,11 +597,19 @@ addLayer("c", {
                 },
             },
             12: {
-                requirementDescription: "13-and-then-some Content Unlocks",
+                requirementDescription: "13 Content Unlocks",
+                unlocked() {return hasMilestone(this.layer, adjustForFutureSight(10))},
+                done() {return player[this.layer].best.gte(12)},
+                effectDescription() {
+                    return hasMilestone(this.layer, 12) ? "You gain 1% of your prestige point gain on reset per second." : "A taste of automation?";
+                },
+            },
+            13: {
+                requirementDescription: "14-and-then-some Content Unlocks",
                 unlocked() {return hasMilestone(this.layer, adjustForFutureSight(11))},
                 done() {return false},
                 effectDescription() {
-                    return hasMilestone(this.layer, 12) ? "hacker" : "No more content =/";
+                    return hasMilestone(this.layer, 13) ? "hacker" : "No more content =/";
                 },
             },
         },
