@@ -187,7 +187,7 @@ addLayer(PRESTIGE_LAYER_ID, {
                 cost: new Decimal(100),
                 unlocked() { 
                     return (hasUpgrade("c", 11) || (hasUpgrade(this.layer, 22) && hasUpgrade(this.layer, 13)))
-                        && hasMilestone("c", 1);
+                        && hasMilestone("c", 5);
                 },
                 effect() {
                     let ret = player[this.layer].best.add(1).root(10);
@@ -203,7 +203,7 @@ addLayer(PRESTIGE_LAYER_ID, {
                 cost: new Decimal(500),
                 unlocked() { 
                     return (hasUpgrade("c", 11) || (hasUpgrade(this.layer, 23) && hasUpgrade(this.layer, 14)))
-                        && hasMilestone("c", 1);
+                        && hasMilestone("c", 7);
                 },
                 effect() {
                     let ret = player[this.layer].points.add(1).root(10);
@@ -803,11 +803,12 @@ addLayer("k", {
             cost: new Decimal(1),
             effect() {
                 let softCap = player.c.points.sqrt().floor();
-                let bonusUptoSoftcap = new Decimal(8).pow(player[this.layer].points.min(softCap));
+                let bonusUptoSoftcap = new Decimal(7).pow(player[this.layer].points.min(softCap));
                 let result = bonusUptoSoftcap;
                 if (player[this.layer].points.gt(softCap)) {
                     result = result.mul(player[this.layer].points.sub(softCap).add(1));
                 }
+                result = result.add(1);
                 return result;
             },
             effectDisplay() {
